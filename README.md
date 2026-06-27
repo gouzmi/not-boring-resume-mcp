@@ -64,68 +64,14 @@ uv run pytest                               # tests
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`:
-
-- **lint** — `ruff format --check` and `ruff check`
-- **test** — installs Chromium via Playwright, then runs `pytest`
+CI (lint + tests) runs on every pull request and push to `main`. See
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) for details.
 
 ## Releasing (publishing to PyPI)
 
-Releases are **tag-driven**: pushing a `v*` tag builds the package, creates the
-matching GitHub Release, and publishes to PyPI. The workflow lives in
-`.github/workflows/publish.yml`.
-
-### One-time setup
-
-Configure a **Trusted Publisher** on PyPI (no API token to store). On
-[PyPI](https://pypi.org/) → your project → **Publishing** → **Add a pending
-publisher**:
-
-| Field        | Value                       |
-| ------------ | --------------------------- |
-| Owner        | your GitHub account / org   |
-| Repository   | `not-boring-resume-mcp`     |
-| Workflow     | `publish.yml`               |
-| Environment  | `pypi`                      |
-
-### Cutting a release
-
-The version bump goes through a normal PR, and the tag is created **after** the
-merge. You never need to force-push.
-
-1. On a branch, bump the version in `pyproject.toml` (e.g. `version = "0.1.1"`):
-
-   ```bash
-   git switch -c release/0.1.1
-   # edit pyproject.toml -> version = "0.1.1"
-   git commit -am "Release 0.1.1"
-   git push -u origin release/0.1.1
-   ```
-
-2. Open a PR, let CI run, and merge it into `main` (merge or squash).
-
-3. Update local `main`, then tag the merged commit and push the tag:
-
-   ```bash
-   git switch main
-   git pull
-   git tag v0.1.1
-   git push origin v0.1.1
-   ```
-
-> **Tag after merging, never before.** A squash merge rewrites the commit SHA, so
-> a tag created on the branch would point to an orphaned commit. Tagging the
-> commit that is already on `main` keeps the tag on the real history — and avoids
-> any temptation to force-push.
-
-Pushing the tag triggers the workflow, which:
-
-1. **Verifies** the tag (`v0.1.1`) matches `version` in `pyproject.toml` — the
-   job fails fast if they differ, so you can't ship a mismatched release.
-2. Builds the sdist and wheel.
-3. Creates the GitHub Release with auto-generated notes and the built artifacts.
-4. Publishes to PyPI.
-
-> The tag version (minus the `v`) **must** equal `project.version`, and that
-> version must not already exist on PyPI — PyPI never lets you overwrite a
-> published version.
+Releases are on-demand and automated with
+[python-semantic-release](https://python-semantic-release.readthedocs.io/) —
+trigger the release workflow manually with `gh workflow run release.yml --ref main`
+and it bumps the version, tags, and publishes to PyPI from the
+[Conventional Commit](https://www.conventionalcommits.org/) history. See
+[`.github/workflows/release.yml`](.github/workflows/release.yml) for the full flow.

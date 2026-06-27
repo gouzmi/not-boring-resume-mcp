@@ -1,5 +1,11 @@
 name: CI
 
+# Runs on every pull request and on pushes to `main`:
+#   - lint  — `ruff format --check` and `ruff check`
+#   - test  — installs Chromium via Playwright, then runs `pytest`
+#
+# Note: the test suite renders the live default CV from notboringresume.cloud,
+# so it needs network access and will fail if the site is down.
 on:
   pull_request:
   push:
