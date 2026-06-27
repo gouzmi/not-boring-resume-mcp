@@ -106,6 +106,8 @@ _COVER_LETTER_BLOCK = re.compile(
     r"<!-- *cover-letter:start *-->\n?.*?<!-- *cover-letter:end *-->\n?",
     re.DOTALL,
 )
+
+
 def _apply_cover_letter_toggle(template: str, enabled: bool) -> str:
     """Keep or remove the cover-letter sections of the workflow.
 
@@ -117,7 +119,9 @@ def _apply_cover_letter_toggle(template: str, enabled: bool) -> str:
     return re.sub(r"<!-- *cover-letter:(?:start|end) *-->\n?", "", template)
 
 
-def _workflow(offer: str, cv_path: str, cover_letter_path: str, with_letter: bool) -> str:
+def _workflow(
+    offer: str, cv_path: str, cover_letter_path: str, with_letter: bool
+) -> str:
     """Build the tailor workflow prompt from prompts/tailor_cv.md.
 
     Both prompts below share this single source; with_letter decides whether the
