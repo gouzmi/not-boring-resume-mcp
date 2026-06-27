@@ -47,15 +47,35 @@ publisher**:
 
 ### Cutting a release
 
-1. Bump the version in `pyproject.toml` (e.g. `version = "0.1.1"`), commit and push.
-2. Create and push a matching tag:
+The version bump goes through a normal PR, and the tag is created **after** the
+merge. You never need to force-push.
+
+1. On a branch, bump the version in `pyproject.toml` (e.g. `version = "0.1.1"`):
 
    ```bash
+   git switch -c release/0.1.1
+   # edit pyproject.toml -> version = "0.1.1"
+   git commit -am "Release 0.1.1"
+   git push -u origin release/0.1.1
+   ```
+
+2. Open a PR, let CI run, and merge it into `main` (merge or squash).
+
+3. Update local `main`, then tag the merged commit and push the tag:
+
+   ```bash
+   git switch main
+   git pull
    git tag v0.1.1
    git push origin v0.1.1
    ```
 
-The tag triggers the workflow, which:
+> **Tag after merging, never before.** A squash merge rewrites the commit SHA, so
+> a tag created on the branch would point to an orphaned commit. Tagging the
+> commit that is already on `main` keeps the tag on the real history — and avoids
+> any temptation to force-push.
+
+Pushing the tag triggers the workflow, which:
 
 1. **Verifies** the tag (`v0.1.1`) matches `version` in `pyproject.toml` — the
    job fails fast if they differ, so you can't ship a mismatched release.
