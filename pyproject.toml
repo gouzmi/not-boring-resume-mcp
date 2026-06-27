@@ -27,3 +27,14 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/not_boring_resume_mcp"]
+
+[tool.semantic_release]
+# Version lives in [project] and is bumped automatically from commit messages.
+version_toml = ["pyproject.toml:project.version"]
+tag_format = "v{version}"
+# Runs inside the PSR action container, so keep it self-contained (no uv here).
+build_command = "python -m pip install build && python -m build"
+commit_message = "chore(release): v{version} [skip ci]"
+
+[tool.semantic_release.branches.main]
+match = "main"
