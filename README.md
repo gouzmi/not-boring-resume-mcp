@@ -1,7 +1,8 @@
 # not-boring-resume-mcp
 
 MCP server that renders a YAML CV into a one-page PDF via
-[notboringresume.cloud](https://notboringresume.cloud) (local headless Chromium).
+[notboringresume.cloud](https://notboringresume.cloud) (local headless Chromium).  
+Optionnaly it can also generate a cover letter adapted to the resume and the offer.
 
 ## Development
 
