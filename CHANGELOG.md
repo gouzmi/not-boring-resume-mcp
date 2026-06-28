@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.1.0 (2026-06-28)
+
+### Features
+
+- Add examples and usage
+  ([`92180b0`](https://github.com/gouzmi/not-boring-resume-mcp/commit/92180b010d57c693a3379d67c3abeeddd79fe594))
+
+
 ## v1.0.0 (2026-06-28)
 
 ### Features
