@@ -22,6 +22,16 @@ name: Release
 #   feat: ...                               -> minor  (0.1.2 -> 0.2.0)
 #   feat!: ...  or a `BREAKING CHANGE:` footer -> major  (0.1.2 -> 1.0.0)
 #   chore:, docs:, refactor:, test:, ...    -> no release
+#
+# One-time setup — `main` is a protected branch, so the bump commit is pushed
+# with a GitHub App token that is allowed to bypass the rule:
+#   1. Create a GitHub App (Settings -> Developer settings -> GitHub Apps).
+#      Repository permission: Contents = Read and write. No webhook needed.
+#   2. Generate a private key and note the App ID; install the App on this repo.
+#   3. Add two repo secrets: RELEASE_APP_ID and RELEASE_APP_PRIVATE_KEY.
+#   4. In the branch rule for `main`, add the App as a bypass actor
+#      ("Allow specified actors to bypass required pull requests", or the
+#      Ruleset bypass list).
 on:
   workflow_dispatch:
 
@@ -35,22 +45,32 @@ jobs:
     name: Semantic release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # push the bump commit + tag, create the GitHub Release
-      id-token: write # PyPI trusted publishing (OIDC) — no API token needed
+      # The bump commit, tag, and Release are pushed with the App token below;
+      # this job only needs OIDC for PyPI trusted publishing.
+      id-token: write
     # The PyPI "Trusted Publisher" config must reference this environment.
     environment:
       name: pypi
       url: https://pypi.org/p/not-boring-resume-mcp
     steps:
+      # Mint a token that can push the bump commit past branch protection.
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history so PSR can read commits since last tag
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Determine version, tag, build, GitHub Release
         id: release
         uses: python-semantic-release/python-semantic-release@v10
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
 
       - name: Publish to PyPI
         if: steps.release.outputs.released == 'true'
@@ -60,5 +80,5 @@ jobs:
         if: steps.release.outputs.released == 'true'
         uses: python-semantic-release/publish-action@v10
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
           tag: ${{ steps.release.outputs.tag }}
