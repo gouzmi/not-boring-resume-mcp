@@ -28,6 +28,7 @@ All outputs go to `./output/[COMPANY]/[OFFER]/`.
 
 ## Step 2 — Adapt the YAML
 Rules:
+- Never change job titles
 - Keep all factual data unchanged: names, dates, companies, contact info
 - Rewrite `about.description` to speak directly to this role (2–4 sentences max) while keeping the maximum to preserve the original style.
 - Reorder skill categories so the most relevant appear first
